@@ -1,5 +1,5 @@
 {
-	"name": "@grupotendasplenart/n8n-nodes-pipefy",
+	"name": "@plenart/n8n-nodes-pipefy",
 	"version": "0.1.5",
 	"description": "Um nó da comunidade que traz (parte da) API GraphQL do Pipefy para sua instância n8n!",
 	"keywords": [
