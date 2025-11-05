@@ -1,37 +1,39 @@
-import {
-	IDataObject,
-	IExecuteFunctions,
-	IHttpRequestOptions,
-	ILoadOptionsFunctions,
-	IPollFunctions,
-	JsonObject,
-	NodeApiError,
-} from 'n8n-workflow';
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.graphQlRequest = graphQlRequest;
+exports.uploadFile = uploadFile;
 
-export async function graphQlRequest({
-	ctx,
-	query,
-	variables,
-}: {
-	ctx: IExecuteFunctions | ILoadOptionsFunctions | IPollFunctions;
-	query: string;
-	variables?: Record<string, unknown>;
-}) {
-	const options: IHttpRequestOptions = {
+const n8n_workflow_1 = require("n8n-workflow");
+
+// Sanitiza recursivamente os valores vindos do resourceMapper:
+// transforma "" e "null" (string) em null real
+function deepNullify(x) {
+	if (Array.isArray(x)) return x.map(deepNullify);
+	if (x && typeof x === 'object') {
+		const out = {};
+		for (const k of Object.keys(x)) out[k] = deepNullify(x[k]);
+		return out;
+	}
+	return (x === '' || x === 'null') ? null : x;
+}
+
+async function graphQlRequest({ ctx, query, variables, }) {
+	const cleanedVariables = deepNullify(variables);
+
+	const options = {
 		method: 'POST',
 		baseURL: 'https://api.pipefy.com',
 		url: '/graphql',
 		json: true,
 		body: {
 			query,
-			variables,
+			variables: cleanedVariables,
 		},
 	};
 
-	const authenticationMethod = ctx.getNodeParameter('authentication', 0) as string;
+	const authenticationMethod = ctx.getNodeParameter('authentication', 0);
 
-	let response: IDataObject;
-
+	let response;
 	try {
 		response = await ctx.helpers.httpRequestWithAuthentication.call(
 			ctx,
@@ -39,33 +41,22 @@ export async function graphQlRequest({
 			options,
 		);
 	} catch (error) {
-		throw new NodeApiError(ctx.getNode(), error as JsonObject);
+		throw new n8n_workflow_1.NodeApiError(ctx.getNode(), error);
 	}
 
 	if ('errors' in response) {
 		const {
 			message,
 			extensions: { code: description },
-		} = (response.errors as { message: string; extensions: { code: string } }[])[0];
-
-		throw new NodeApiError(ctx.getNode(), { message, description });
+		} = response.errors[0];
+		throw new n8n_workflow_1.NodeApiError(ctx.getNode(), { message, description });
 	}
 
-	return response.data as IDataObject;
+	return response.data;
 }
 
-export async function uploadFile({
-	ctx,
-	presignedUrl,
-	buffer,
-	mimeType,
-}: {
-	ctx: IExecuteFunctions;
-	presignedUrl: string;
-	buffer: ArrayBuffer;
-	mimeType: string;
-}) {
-	const options: IHttpRequestOptions = {
+async function uploadFile({ ctx, presignedUrl, buffer, mimeType, }) {
+	const options = {
 		url: presignedUrl,
 		method: 'PUT',
 		headers: {
@@ -77,6 +68,7 @@ export async function uploadFile({
 	try {
 		await ctx.helpers.httpRequest(options);
 	} catch (error) {
-		throw new NodeApiError(ctx.getNode(), error as JsonObject);
+		throw new n8n_workflow_1.NodeApiError(ctx.getNode(), error);
 	}
 }
+//# sourceMappingURL=index.js.map
