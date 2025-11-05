@@ -1,7 +1,7 @@
 {
-	"name": "@cardtunic/n8n-nodes-pipefy",
+	"name": "@grupotendasplenart/n8n-nodes-pipefy",
 	"version": "0.1.5",
-	"description": "A community node that brings (part of) the Pipefy GraphQL API to your n8n instance!",
+	"description": "Um nó da comunidade que traz (parte da) API GraphQL do Pipefy para sua instância n8n!",
 	"keywords": [
 		"n8n-community-node-package",
 		"pipefy",
@@ -16,7 +16,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cardtunic/n8n-nodes-pipefy.git"
+		"url": "https://github.com/grupotendasplenart/n8n-nodes-pipefy.git"
 	},
 	"engines": {
 		"node": ">=20.15"
